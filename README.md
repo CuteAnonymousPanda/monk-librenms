@@ -1,13 +1,14 @@
-LibreNMS meet Monk
+LibreNMS meets Monk
 ===
 
-This repository contains Monk.io template to deploy LibreNMS system either locally or on cloud of your choice (AWS, GCP, Azure, Digital Ocean).  
+This repository contains Monk.io template to deploy LibreNMS system either locally or on cloud of your choice (AWS, GCP, Azure, Digital Ocean).
 
-This template uses [Traefik](https://traefik.io/) as a reverse proxy to provide full HTTPS encryption.  
-Traefik will try to obtain full SSL certificate from Lets Encrypt(assuming valid hostname is provided in the `manifest.yaml`) and if not it will fallback to a default self generated SSL certificate.  
+This template uses [Traefik](https://traefik.io/) as a reverse proxy to provide full HTTPS encryption.
+Traefik will try to obtain full SSL certificate from Lets Encrypt(assuming valid hostname is provided in the `manifest.yaml`) and if not it will fallback to a default self generated SSL certificate.
 
-If you wish to disable Traefik(for example you have your own reverse proxy) please look at [Variables](#variables) section.  
+If you wish to disable Traefik(for example you have your own reverse proxy) please look at [Variables](#variables) section.
 
+- [LibreNMS meets Monk](#librenms-meets-monk)
   - [Prerequisites](#prerequisites)
     - [Make sure monkd is running.](#make-sure-monkd-is-running)
     - [Clone Repository](#clone-repository)
@@ -53,19 +54,19 @@ monk load librenms.yaml
 $ monk list -l librenms
 
 ✔ Got the list
-Type      Template          Repository  Version  Tags  
-runnable  librenms/db       local       -        -     
-runnable  librenms/server   local       -        -     
-group     librenms/stack    local       -        -     
-runnable  librenms/traefik  local       -        -     
+Type      Template          Repository  Version  Tags
+runnable  librenms/db       local       -        -
+runnable  librenms/server   local       -        -
+group     librenms/stack    local       -        -
+runnable  librenms/traefik  local       -        -
 ```
 
 ## Deploy Stack
 
-When running in a cloud or on multi node environment it is advised that LibreNMS will be started as a whole on one node.  
-This can be achieved by running a run command with a `--peer` parameter.  
+When running in a cloud or on multi node environment it is advised that LibreNMS will be started as a whole on one node.
+This can be achieved by running a run command with a `--peer` parameter.
 
-To get a list of nodes you can run `monk cluster peers` command or `monk c peers`, and then run the stuck by running:  
+To get a list of nodes you can run `monk cluster peers` command or `monk c peers`, and then run the stuck by running:
 
 ```bash
 $ monk run --peer <yourPeerName> librenms/stack
@@ -98,39 +99,39 @@ $ monk run librenms/stack
 
 🔩 templates/local/librenms/stack
  └─🧊 Peer local
-    ├─🔩 templates/local/librenms/server  
-    │  └─📦 8f55623cbc60ca30b86851e9fe1a902e-ocal-librenms-server-snmptrapd 
-    │     ├─🧩 docker.io/librenms/librenms:latest       
+    ├─🔩 templates/local/librenms/server
+    │  └─📦 8f55623cbc60ca30b86851e9fe1a902e-ocal-librenms-server-snmptrapd
+    │     ├─🧩 docker.io/librenms/librenms:latest
     │     ├─💾 /var/lib/monkd/volumes/librenms/librenms -> /data
     │     ├─🔌 open tcp 1.1.1.1:162 -> 162
     │     └─🔌 open udp 1.1.1.1:162 -> 162
-    ├─🔩 templates/local/librenms/server  
-    │  └─📦 e8dd0ff58a124d8adeef2491e63c6810-local-librenms-server-syslogng 
-    │     ├─🧩 docker.io/librenms/librenms:latest       
+    ├─🔩 templates/local/librenms/server
+    │  └─📦 e8dd0ff58a124d8adeef2491e63c6810-local-librenms-server-syslogng
+    │     ├─🧩 docker.io/librenms/librenms:latest
     │     ├─💾 /var/lib/monkd/volumes/librenms/librenms -> /data
     │     ├─🔌 open tcp 1.1.1.1:514 -> 514
     │     └─🔌 open udp 1.1.1.1:514 -> 514
-    ├─🔩 templates/local/librenms/traefik 
-    │  └─📦 6ad2d4e950c8254958c0e289dc2d33e2-local-librenms-traefik-traefik 
-    │     ├─🧩 docker.io/library/traefik:v2.8             
+    ├─🔩 templates/local/librenms/traefik
+    │  └─📦 6ad2d4e950c8254958c0e289dc2d33e2-local-librenms-traefik-traefik
+    │     ├─🧩 docker.io/library/traefik:v2.8
     │     └─💾 /var/run/podman/podman.sock -> /var/run/docker.sock
-    ├─🔩 templates/local/librenms/server  
-    │  └─📦 c09bd751c45f8090f23ede5e38ac93da-local-librenms-server-msmtpd 
+    ├─🔩 templates/local/librenms/server
+    │  └─📦 c09bd751c45f8090f23ede5e38ac93da-local-librenms-server-msmtpd
     │     └─🧩 docker.io/crazymax/msmtpd:latest
-    ├─🔩 templates/local/librenms/db      
-    │  └─📦 f974f601c5bed4f378892c63cd88eff2-local-librenms-db-mariadb 
-    │     ├─🧩 docker.io/library/mariadb:10.5                 
+    ├─🔩 templates/local/librenms/db
+    │  └─📦 f974f601c5bed4f378892c63cd88eff2-local-librenms-db-mariadb
+    │     ├─🧩 docker.io/library/mariadb:10.5
     │     └─💾 /var/lib/monkd/volumes/librenms_mysql -> /var/lib/mysql
-    ├─🔩 templates/local/librenms/server  
-    │  └─📦 83d62aa534b0bd9b1c04cc264ebd5ac2-cal-librenms-server-dispatcher 
-    │     ├─🧩 docker.io/librenms/librenms:latest       
+    ├─🔩 templates/local/librenms/server
+    │  └─📦 83d62aa534b0bd9b1c04cc264ebd5ac2-cal-librenms-server-dispatcher
+    │     ├─🧩 docker.io/librenms/librenms:latest
     │     └─💾 /var/lib/monkd/volumes/librenms/librenms -> /data
-    ├─🔩 templates/local/librenms/db      
-    │  └─📦 4e6af4510139afe6604eabaa66759433-local-librenms-db-redis 
+    ├─🔩 templates/local/librenms/db
+    │  └─📦 4e6af4510139afe6604eabaa66759433-local-librenms-db-redis
     │     └─🧩 docker.io/library/redis:5.0-alpine
-    └─🔩 templates/local/librenms/server  
-       └─📦 9aac573262afb0912c4efccd80d62607-local-librenms-server-librenms 
-          ├─🧩 docker.io/librenms/librenms:latest   
+    └─🔩 templates/local/librenms/server
+       └─📦 9aac573262afb0912c4efccd80d62607-local-librenms-server-librenms
+          ├─🧩 docker.io/librenms/librenms:latest
           ├─💾 /var/lib/monkd/volumes/librenms_data -> /data
           └─🔌 open 1.1.1.1:80 -> 8000
 
@@ -143,11 +144,11 @@ $ monk run librenms/stack
 
 ## Variables
 
-The variables are stored in `manifest.yaml` file.  
+The variables are stored in `manifest.yaml` file.
 You can quickly setup by editing the values there.
 
 | Variable           | Description                                                                    | Default              |
-|--------------------|--------------------------------------------------------------------------------|----------------------|
+| ------------------ | ------------------------------------------------------------------------------ | -------------------- |
 | hostname           | Your LibreNMS master hostname                                                  | <- ip-address-public |
 | enable-traefik     | If disabled traffic will be routed only to LibreNMS via non-ssl encrypted port | true                 |
 | http-port          | Port that Traefik/LibreNMS will listen for non SSL traffic                     | 80                   |
@@ -174,5 +175,5 @@ monk purge -x librenms/stack
 ```
 
 ## Persistency
-If you're using any of the clouds available via Monk. You can use volume definition to spin a disk block device to make your LibreNMS instance independent from the node it's running on.  
+If you're using any of the clouds available via Monk. You can use volume definition to spin a disk block device to make your LibreNMS instance independent from the node it's running on.
 To do simply uncomment the `volume` blocks in `librenms.yaml`
