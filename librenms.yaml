@@ -187,9 +187,9 @@ server:
     librenms:
       image: librenms/librenms
       image-tag: latest
-      # cap-add:
-      #   - NET_ADMIN
-      #   - NET_RAW
+      cap-add:
+        - NET_ADMIN
+        - NET_RAW
       ports:
         - <- $enable-traefik not then(`80:8000`)
       paths:
@@ -250,9 +250,9 @@ server:
     snmptrapd:
       image: librenms/librenms
       image-tag: latest
-      # cap-add:
-      #   - NET_ADMIN
-      #   - NET_RAW
+      cap-add:
+        - NET_ADMIN
+        - NET_RAW
       ports:
         - "162:162/tcp"
         - "162:162/udp"
@@ -290,9 +290,9 @@ server:
     dispatcher:
       image: librenms/librenms
       image-tag: latest
-      # cap-add:
-      #   - NET_ADMIN
-      #   - NET_RAW
+      cap-add:
+        - NET_ADMIN
+        - NET_RAW
       paths:
         - <- `${monk-volume-path}/librenms/librenms:/data`
       environment:
@@ -328,9 +328,9 @@ server:
     syslogng:
       image: librenms/librenms
       image-tag: latest
-      # cap-add:
-      #   - NET_ADMIN
-      #   - NET_RAW
+      cap-add:
+        - NET_ADMIN
+        - NET_RAW
       ports:
         - "514:514/tcp"
         - "514:514/udp"
