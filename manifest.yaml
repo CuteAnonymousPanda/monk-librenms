@@ -4,9 +4,9 @@ stack:
   defines: process-group
 
   runnable-list:
-    - /librenms/db
-    - /librenms/server
-    - /librenms/traefik
+    - librenms/db
+    - librenms/server
+    - librenms/traefik
 
 common:
   metadata:
@@ -21,7 +21,7 @@ common:
   variables:
     enable-traefik:
       type: bool
-      value: true
+      value: false
     hostname:
       type: string
       value: <- ip-address-public
@@ -73,12 +73,12 @@ common:
 
 traefik:
   defines: runnable
-  inherits: /librenms/common
+  inherits: librenms/common
 
   depends:
     wait-for:
       runnables:
-        - /librenms/server
+        - librenms/server
       timeout: 60
 
   files:
@@ -100,7 +100,19 @@ traefik:
 
 db:
   defines: runnable
-  inherits: /librenms/common
+  inherits: librenms/common
+
+  services:
+    mariadb:
+      container: mariadb
+      port: 3306
+      protocol: tcp
+      # host-port:
+    redis:
+      container: redis
+      port: 6379
+      protocol: tcp
+      # host-port:
 
   checks:
     readiness:
@@ -126,7 +138,7 @@ db:
       image-tag: "10.5"
       entrypoint: docker-entrypoint.sh mysqld --innodb-file-per-table=1 --lower-case-table-names=0 --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
       paths:
-        - <- `${monk-volume-path}/librenms_mysql:/var/lib/mysql`
+        - <- `${monk-volume-path}/librenms/mysql:/var/lib/mysql`
       environment:
         - <- `TZ=${timezone}`
         - <- `MARIADB_DATABASE=${db-name}`
@@ -142,13 +154,21 @@ db:
 
 server:
   defines: runnable
-  inherits: /librenms/common
+  inherits: librenms/common
 
   depends:
     wait-for:
       runnables:
-        - /librenms/db
+        - librenms/db
       timeout: 60
+
+  connections:
+    redis:
+      runnable: librenms/db
+      service: redis
+    mariadb:
+      runnable: librenms/db
+      service: mariadb
 
   checks:
     readiness:
@@ -193,7 +213,7 @@ server:
       ports:
         - <- $enable-traefik not then(`80:8000`)
       paths:
-        - <- `${monk-volume-path}/librenms_data:/data`
+        - <- `${monk-volume-path}/librenms/data:/data`
       environment:
         - MEMORY_LIMIT=512M
         - MAX_INPUT_VARS=1000
@@ -205,7 +225,7 @@ server:
 
         - CACHE_DRIVER=redis
         - SESSION_DRIVER=redis
-        - <- "REDIS_HOST=" get-hostname("/librenms/db", "redis") concat-all
+        - <- "REDIS_HOST=" connection-hostname("redis") concat-all
 
         - LIBRENMS_SNMP_COMMUNITY=librenmsdocker
 
@@ -215,7 +235,7 @@ server:
         - <- `TZ=${timezone}`
         - PUID=1000
         - PGID=1000
-        - <- "DB_HOST=" get-hostname("/librenms/db", "mariadb") concat-all
+        - <- "DB_HOST=" connection-hostname("mariadb") concat-all
         - <- `DB_NAME=${db-name}`
         - <- `DB_USER=${db-user}`
         - <- `DB_PASSWORD=${db-pass}`
@@ -257,7 +277,7 @@ server:
         - "162:162/tcp"
         - "162:162/udp"
       paths:
-        - <- `${monk-volume-path}/librenms/librenms:/data`
+        - <- `${monk-volume-path}/librenms/data:/data`
       environment:
         - MEMORY_LIMIT=256M
         - MAX_INPUT_VARS=1000
@@ -269,7 +289,7 @@ server:
 
         - CACHE_DRIVER=redis
         - SESSION_DRIVER=redis
-        - <- "REDIS_HOST=" get-hostname("/librenms/db", "redis") concat-all
+        - <- "REDIS_HOST=" connection-hostname("redis") concat-all
 
         - LIBRENMS_SNMP_COMMUNITY=librenmsdocker
 
@@ -279,7 +299,7 @@ server:
         - <- `TZ=${timezone}`
         - PUID=1000
         - PGID=1000
-        - <- "DB_HOST=" get-hostname("/librenms/db", "mariadb") concat-all
+        - <- "DB_HOST=" connection-hostname("mariadb") concat-all
         - <- `DB_NAME=${db-name}`
         - <- `DB_USER=${db-user}`
         - <- `DB_PASSWORD=${db-pass}`
@@ -294,7 +314,7 @@ server:
         - NET_ADMIN
         - NET_RAW
       paths:
-        - <- `${monk-volume-path}/librenms/librenms:/data`
+        - <- `${monk-volume-path}/librenms/data:/data`
       environment:
         - MEMORY_LIMIT=256M
         - MAX_INPUT_VARS=1000
@@ -306,7 +326,7 @@ server:
 
         - CACHE_DRIVER=redis
         - SESSION_DRIVER=redis
-        - <- "REDIS_HOST=" get-hostname("/librenms/db", "redis") concat-all
+        - <- "REDIS_HOST=" connection-hostname("redis") concat-all
 
         - LIBRENMS_SNMP_COMMUNITY=librenmsdocker
 
@@ -316,7 +336,7 @@ server:
         - <- `TZ=${timezone}`
         - PUID=1000
         - PGID=1000
-        - <- "DB_HOST=" get-hostname("/librenms/db", "mariadb") concat-all
+        - <- "DB_HOST=" connection-hostname("mariadb") concat-all
         - <- `DB_NAME=${db-name}`
         - <- `DB_USER=${db-user}`
         - <- `DB_PASSWORD=${db-pass}`
@@ -335,7 +355,7 @@ server:
         - "514:514/tcp"
         - "514:514/udp"
       paths:
-        - <- `${monk-volume-path}/librenms/librenms:/data`
+        - <- `${monk-volume-path}/librenms/data:/data`
       environment:
         - MEMORY_LIMIT=256M
         - MAX_INPUT_VARS=1000
@@ -347,7 +367,7 @@ server:
 
         - CACHE_DRIVER=redis
         - SESSION_DRIVER=redis
-        - <- "REDIS_HOST=" get-hostname("/librenms/db", "redis") concat-all
+        - <- "REDIS_HOST=" connection-hostname("redis") concat-all
 
         - LIBRENMS_SNMP_COMMUNITY=librenmsdocker
 
@@ -357,7 +377,7 @@ server:
         - <- `TZ=${timezone}`
         - PUID=1000
         - PGID=1000
-        - <- "DB_HOST=" get-hostname("/librenms/db", "mariadb") concat-all
+        - <- "DB_HOST=" connection-hostname("mariadb") concat-all
         - <- `DB_NAME=${db-name}`
         - <- `DB_USER=${db-user}`
         - <- `DB_PASSWORD=${db-pass}`

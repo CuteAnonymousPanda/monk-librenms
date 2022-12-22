@@ -150,7 +150,7 @@ You can quickly setup by editing the values there.
 | Variable           | Description                                                                    | Default              |
 | ------------------ | ------------------------------------------------------------------------------ | -------------------- |
 | hostname           | Your LibreNMS master hostname                                                  | <- ip-address-public |
-| enable-traefik     | If disabled traffic will be routed only to LibreNMS via non-ssl encrypted port | true                 |
+| enable-traefik     | If disabled traffic will be routed only to LibreNMS via non-ssl encrypted port | false                |
 | http-port          | Port that Traefik/LibreNMS will listen for non SSL traffic                     | 80                   |
 | https-port         | Port that Traefik will listen for SSL traffic                                  | 443                  |
 | db-name            | Database name that will be used to store LibreNMS data                         | librenms             |
