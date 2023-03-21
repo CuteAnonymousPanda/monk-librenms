@@ -2,6 +2,7 @@ namespace: /librenms
 
 stack:
   defines: process-group
+  inherits: librenms/common
 
   runnable-list:
     - librenms/db
@@ -16,7 +17,6 @@ common:
     publisher: monk.io
     description: Fully featured network monitoring system that provides a wealth of features and device support.
     source: https://github.com/librenms/librenms
-    version: 0.9
 
   variables:
     enable-traefik:
@@ -75,6 +75,9 @@ traefik:
   defines: runnable
   inherits: librenms/common
 
+  metadata:
+    private: true
+
   depends:
     wait-for:
       runnables:
@@ -101,6 +104,9 @@ traefik:
 db:
   defines: runnable
   inherits: librenms/common
+
+  metadata:
+    private: true
 
   services:
     mariadb:
@@ -155,6 +161,9 @@ db:
 server:
   defines: runnable
   inherits: librenms/common
+
+  metadata:
+    private: true
 
   depends:
     wait-for:
