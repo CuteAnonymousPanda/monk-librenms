@@ -118,12 +118,6 @@ server:
     mariadb:
       runnable: librenms/db
       service: mariadb
-  checks:
-    readiness:
-      code: |
-        exec("librenms", "/bin/bash", "-c", "curl localhost:8000/login") contains?("html")
-      period: 5
-      initialDelay: 5
   containers:
     msmtpd:
       image: crazymax/msmtpd
