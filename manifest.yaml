@@ -1,13 +1,12 @@
-namespace: /librenms
+---
+namespace: librenms
 
 stack:
   defines: process-group
   inherits: librenms/common
-
   runnable-list:
     - librenms/db
     - librenms/server
-    - librenms/traefik
 
 common:
   metadata:
@@ -17,14 +16,7 @@ common:
     publisher: monk.io
     description: Fully featured network monitoring system that provides a wealth of features and device support.
     source: https://github.com/librenms/librenms
-
   variables:
-    enable-traefik:
-      type: bool
-      value: false
-    hostname:
-      type: string
-      value: <- ip-address-public
     http-port:
       type: string
       value: 80
@@ -42,7 +34,7 @@ common:
       value: HappyIsHappyDog!
     timezone:
       type: string
-      value: "Europe/London"
+      value: Europe/London
     smtp_host:
       type: string
       value: smtp.gmail.com
@@ -51,16 +43,16 @@ common:
       value: 587
     smtp_tls:
       type: string
-      value: on
+      value: 'on'
     smtp_starttls:
       type: string
-      value: on
+      value: 'on'
     smtp_tls_checkcert:
       type: string
-      value: on
+      value: 'on'
     smtp_auth:
       type: string
-      value: on
+      value: 'on'
     smtp_user:
       type: string
       value: fooGoes
@@ -71,77 +63,29 @@ common:
       type: string
       value: foo@gmail.com
 
-traefik:
-  defines: runnable
-  inherits: librenms/common
-
-  metadata:
-    private: true
-
-  depends:
-    wait-for:
-      runnables:
-        - librenms/server
-      timeout: 60
-
-  files:
-    config:
-      container: traefik
-      mode: 0644
-      path: /etc/traefik/traefik.yaml
-      contents: <<< files/traefik.yaml
-
-  containers:
-    traefik:
-      image: traefik
-      image-tag: v2.8
-      paths:
-        - "/var/run/podman/podman.sock:/var/run/docker.sock:z"
-      ports:
-        - <- $enable-traefik then(`${http-port}:${http-port}`)
-        - <- $enable-traefik then(`${https-port}:${https-port}`)
-
 db:
   defines: runnable
   inherits: librenms/common
-
   metadata:
     private: true
-
   services:
     mariadb:
       container: mariadb
       port: 3306
       protocol: tcp
-      # host-port:
     redis:
       container: redis
       port: 6379
       protocol: tcp
-      # host-port:
-
   checks:
     readiness:
       code: exec("mariadb", "/usr/bin/bash", "-c", "echo 'SELECT version();' | mysql -u${MARIADB_USER} -p${MARIADB_PASSWORD}") contains?("-MariaDB-")
       period: 5
       initialDelay: 5
-
-  # volumes:
-  #   librenms:
-  #     size: 20
-  #     kind: SSD
-  #     path: <- `${monk-volume-path}/librenms_mysql`
-  #     backup:
-  #       rotation-days: 5
-  #       every: 1
-  #       kind: day
-  #       start-time: 03:00
-  #       start-day: MONDAY
-
   containers:
     mariadb:
       image: mariadb
-      image-tag: "10.5"
+      image-tag: '10.5'
       entrypoint: docker-entrypoint.sh mysqld --innodb-file-per-table=1 --lower-case-table-names=0 --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
       paths:
         - <- `${monk-volume-path}/librenms/mysql:/var/lib/mysql`
@@ -151,7 +95,6 @@ db:
         - <- `MARIADB_USER=${db-user}`
         - <- `MARIADB_PASSWORD=${db-pass}`
         - MARIADB_RANDOM_ROOT_PASSWORD=yes
-
     redis:
       image: redis
       image-tag: 5.0-alpine
@@ -161,16 +104,13 @@ db:
 server:
   defines: runnable
   inherits: librenms/common
-
   metadata:
     private: true
-
   depends:
     wait-for:
       runnables:
         - librenms/db
       timeout: 60
-
   connections:
     redis:
       runnable: librenms/db
@@ -178,26 +118,12 @@ server:
     mariadb:
       runnable: librenms/db
       service: mariadb
-
   checks:
     readiness:
       code: |
-        exec("librenms", "/bin/bash", "-c", "curl localhost:8000/login") contains?("Unauthorised")
+        exec("librenms", "/bin/bash", "-c", "curl localhost:8000/login") contains?("html")
       period: 5
       initialDelay: 5
-
-  # volumes:
-  #   librenms:
-  #     size: 50
-  #     kind: SSD
-  #     path: <- `${monk-volume-path}/librenms_data`
-  #     backup:
-  #       rotation-days: 5
-  #       every: 1
-  #       kind: day
-  #       start-time: 03:00
-  #       start-day: MONDAY
-
   containers:
     msmtpd:
       image: crazymax/msmtpd
@@ -212,15 +138,12 @@ server:
         - <- `SMTP_USER=${smtp_user}`
         - <- `SMTP_PASSWORD=${smtp_password}`
         - <- `SMTP_FROM=${smtp_from}`
-
     librenms:
       image: librenms/librenms
       image-tag: latest
       cap-add:
-        - NET_ADMIN
-        - NET_RAW
-      ports:
-        - <- $enable-traefik not then(`80:8000`)
+        - CAP_NET_ADMIN
+        - CAP_NET_RAW
       paths:
         - <- `${monk-volume-path}/librenms/data:/data`
       environment:
@@ -231,16 +154,12 @@ server:
         - REAL_IP_FROM=0.0.0.0/32
         - REAL_IP_HEADER=X-Forwarded-For
         - LOG_IP_VAR=remote_addr
-
         - CACHE_DRIVER=redis
         - SESSION_DRIVER=redis
         - <- "REDIS_HOST=" connection-hostname("redis") concat-all
-
         - LIBRENMS_SNMP_COMMUNITY=librenmsdocker
-
         - LIBRENMS_WEATHERMAP=false
         - LIBRENMS_WEATHERMAP_SCHEDULE=*/5 * * * *
-
         - <- `TZ=${timezone}`
         - PUID=1000
         - PGID=1000
@@ -249,42 +168,12 @@ server:
         - <- `DB_USER=${db-user}`
         - <- `DB_PASSWORD=${db-pass}`
         - <- `DB_TIMEOUT=60`
-
-      labels:
-        - <- `traefik.enable=${enable-traefik}`
-
-        - traefik.http.routers.librenms.entrypoints=web
-        - traefik.http.routers.librenms.rule=PathPrefix(`/`)
-        - traefik.http.routers.librenms.middlewares=open-access@file
-
-        - traefik.http.routers.librenms-websecure.entrypoints=websecure
-        - traefik.http.routers.librenms-websecure.rule=PathPrefix(`/`)
-        - traefik.http.routers.librenms-websecure.middlewares=open-access@file,librenms-headers
-
-        - traefik.http.routers.librenms-websecure.tls=true
-        - traefik.http.routers.librenms-websecure.tls.certresolver=letsencrypt
-        - <- `traefik.http.routers.librenms-websecure.tls.domains[0].main=${hostname}`
-        - traefik.http.routers.librenms-websecure.service=librenms-websecure
-
-        - traefik.http.middlewares.librenms-headers.headers.sslredirect=true
-        - traefik.http.middlewares.librenms-headers.headers.sslproxyheaders.name0=X-Forwarded-Proto:https
-        - <- `traefik.http.middlewares.librenms-headers.headers.sslProxyHeaders.name1=X-Forwarded-Host:${hostname}`
-
-        - traefik.http.middlewares.librenms-headers.headers.customrequestheaders.name0=X-Forwarded-Proto:https
-        - <- `traefik.http.middlewares.librenms-headers.headers.customrequestheaders.name1=X-Forwarded-Host:${hostname}`
-        - <- `traefik.http.middlewares.librenms-headers.headers.customrequestheaders.name2=X-Forwarded-Port:${https-port}`
-
-        - traefik.http.services.librenms-websecure.loadbalancer.server.port=8000
-
     snmptrapd:
       image: librenms/librenms
       image-tag: latest
       cap-add:
-        - NET_ADMIN
-        - NET_RAW
-      ports:
-        - "162:162/tcp"
-        - "162:162/udp"
+        - CAP_NET_ADMIN
+        - CAP_NET_RAW
       paths:
         - <- `${monk-volume-path}/librenms/data:/data`
       environment:
@@ -295,16 +184,12 @@ server:
         - REAL_IP_FROM=0.0.0.0/32
         - REAL_IP_HEADER=X-Forwarded-For
         - LOG_IP_VAR=remote_addr
-
         - CACHE_DRIVER=redis
         - SESSION_DRIVER=redis
         - <- "REDIS_HOST=" connection-hostname("redis") concat-all
-
         - LIBRENMS_SNMP_COMMUNITY=librenmsdocker
-
         - LIBRENMS_WEATHERMAP=false
         - LIBRENMS_WEATHERMAP_SCHEDULE=*/5 * * * *
-
         - <- `TZ=${timezone}`
         - PUID=1000
         - PGID=1000
@@ -313,15 +198,13 @@ server:
         - <- `DB_USER=${db-user}`
         - <- `DB_PASSWORD=${db-pass}`
         - <- `DB_TIMEOUT=60`
-
-        - "SIDECAR_SNMPTRAPD=1"
-
+        - SIDECAR_SNMPTRAPD=1
     dispatcher:
       image: librenms/librenms
       image-tag: latest
       cap-add:
-        - NET_ADMIN
-        - NET_RAW
+        - CAP_NET_ADMIN
+        - CAP_NET_RAW
       paths:
         - <- `${monk-volume-path}/librenms/data:/data`
       environment:
@@ -332,16 +215,12 @@ server:
         - REAL_IP_FROM=0.0.0.0/32
         - REAL_IP_HEADER=X-Forwarded-For
         - LOG_IP_VAR=remote_addr
-
         - CACHE_DRIVER=redis
         - SESSION_DRIVER=redis
         - <- "REDIS_HOST=" connection-hostname("redis") concat-all
-
         - LIBRENMS_SNMP_COMMUNITY=librenmsdocker
-
         - LIBRENMS_WEATHERMAP=false
         - LIBRENMS_WEATHERMAP_SCHEDULE=*/5 * * * *
-
         - <- `TZ=${timezone}`
         - PUID=1000
         - PGID=1000
@@ -350,19 +229,14 @@ server:
         - <- `DB_USER=${db-user}`
         - <- `DB_PASSWORD=${db-pass}`
         - <- `DB_TIMEOUT=60`
-
-        - "DISPATCHER_NODE_ID=dispatcher1"
-        - "SIDECAR_DISPATCHER=1"
-
+        - DISPATCHER_NODE_ID=dispatcher1
+        - SIDECAR_DISPATCHER=1
     syslogng:
       image: librenms/librenms
       image-tag: latest
       cap-add:
-        - NET_ADMIN
-        - NET_RAW
-      ports:
-        - "514:514/tcp"
-        - "514:514/udp"
+        - CAP_NET_ADMIN
+        - CAP_NET_RAW
       paths:
         - <- `${monk-volume-path}/librenms/data:/data`
       environment:
@@ -373,16 +247,12 @@ server:
         - REAL_IP_FROM=0.0.0.0/32
         - REAL_IP_HEADER=X-Forwarded-For
         - LOG_IP_VAR=remote_addr
-
         - CACHE_DRIVER=redis
         - SESSION_DRIVER=redis
         - <- "REDIS_HOST=" connection-hostname("redis") concat-all
-
         - LIBRENMS_SNMP_COMMUNITY=librenmsdocker
-
         - LIBRENMS_WEATHERMAP=false
         - LIBRENMS_WEATHERMAP_SCHEDULE=*/5 * * * *
-
         - <- `TZ=${timezone}`
         - PUID=1000
         - PGID=1000
@@ -391,5 +261,30 @@ server:
         - <- `DB_USER=${db-user}`
         - <- `DB_PASSWORD=${db-pass}`
         - <- `DB_TIMEOUT=60`
-
-        - "SIDECAR_SYSLOGNG=1"
+        - SIDECAR_SYSLOGNG=1
+  services:
+    http:
+      container: librenms
+      port: 8000
+      protocol: tcp
+      host-port: 80
+    snmptrapd-tcp:
+      container: snmptrapd
+      port: 162
+      protocol: tcp
+      host-port: 162
+    snmptrapd-udp:
+      container: snmptrapd
+      port: 162
+      protocol: udp
+      host-port: 162
+    syslogng-tcp:
+      container: syslogng
+      port: 514
+      protocol: tcp
+      host-port: 514
+    syslogng-udp:
+      container: syslogng
+      port: 514
+      protocol: udp
+      host-port: 514

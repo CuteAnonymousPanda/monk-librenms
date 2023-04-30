@@ -1,5 +1,5 @@
 LibreNMS meets Monk
-===
+===================
 
 This repository contains Monk.io template to deploy LibreNMS system either locally or on cloud of your choice (AWS, GCP, Azure, Digital Ocean).
 
@@ -21,6 +21,7 @@ If you wish to disable Traefik(for example you have your own reverse proxy) plea
   - [Persistency](#persistency)
 
 ## Prerequisites
+
 - [Install Monk](https://docs.monk.io/docs/get-monk)
 - [Register and Login Monk](https://docs.monk.io/docs/acc-and-auth)
 - [Add Cloud Provider](https://docs.monk.io/docs/cloud-provider)
@@ -147,25 +148,25 @@ $ monk run librenms/stack
 The variables are stored in `manifest.yaml` file.
 You can quickly setup by editing the values there.
 
-| Variable           | Description                                                                    | Default              |
-| ------------------ | ------------------------------------------------------------------------------ | -------------------- |
-| hostname           | Your LibreNMS master hostname                                                  | <- ip-address-public |
-| enable-traefik     | If disabled traffic will be routed only to LibreNMS via non-ssl encrypted port | false                |
-| http-port          | Port that Traefik/LibreNMS will listen for non SSL traffic                     | 80                   |
-| https-port         | Port that Traefik will listen for SSL traffic                                  | 443                  |
-| db-name            | Database name that will be used to store LibreNMS data                         | librenms             |
-| db-user            | Database username                                                              | librenms             |
-| db-pass            | Database password                                                              | HappyIsHappyDog!     |
-| timezone           | Timezone set for LibreNMS                                                      | Europe/London        |
-| smtp_host          | SMTP host that will be used for sending emails                                 | smtp.gmail.com       |
-| smtp_port          | SMTP port that will be used for sending emails                                 | 587                  |
-| smtp_tls           | Should TLS be enabled for SMTP                                                 | on                   |
-| smtp_starttls      | Should Start TLS be enabled for SMTP                                           | on                   |
-| smtp_tls_checkcert | Should SMTP validate certificates                                              | on                   |
-| smtp_auth          | Should we use SMTP auth                                                        | on                   |
-| smtp_user          | SMTP username                                                                  | fooGoes              |
-| smtp_password      | SMTP password                                                                  | ToBar                |
-| smtp_from          | This will set From: for emails ls                                              | foo@gmail.com        |
+| Variable           | Description                                                                    | Default                           |
+| ------------------ | ------------------------------------------------------------------------------ | --------------------------------- |
+| hostname           | Your LibreNMS master hostname                                                  | <- ip-address-public              |
+| enable-traefik     | If disabled traffic will be routed only to LibreNMS via non-ssl encrypted port | false                             |
+| http-port          | Port that Traefik/LibreNMS will listen for non SSL traffic                     | 80                                |
+| https-port         | Port that Traefik will listen for SSL traffic                                  | 443                               |
+| db-name            | Database name that will be used to store LibreNMS data                         | librenms                          |
+| db-user            | Database username                                                              | librenms                          |
+| db-pass            | Database password                                                              | HappyIsHappyDog!                  |
+| timezone           | Timezone set for LibreNMS                                                      | Europe/London                     |
+| smtp_host          | SMTP host that will be used for sending emails                                 | smtp.gmail.com                    |
+| smtp_port          | SMTP port that will be used for sending emails                                 | 587                               |
+| smtp_tls           | Should TLS be enabled for SMTP                                                 | on                                |
+| smtp_starttls      | Should Start TLS be enabled for SMTP                                           | on                                |
+| smtp_tls_checkcert | Should SMTP validate certificates                                              | on                                |
+| smtp_auth          | Should we use SMTP auth                                                        | on                                |
+| smtp_user          | SMTP username                                                                  | fooGoes                           |
+| smtp_password      | SMTP password                                                                  | ToBar                             |
+| smtp_from          | This will set From: for emails ls                                              | foo@gmail.commailto:foo@gmail.com |
 
 ## Stop, remove and clean up workloads and templates
 
@@ -175,5 +176,6 @@ monk purge -x librenms/stack
 ```
 
 ## Persistency
+
 If you're using any of the clouds available via Monk. You can use volume definition to spin a disk block device to make your LibreNMS instance independent from the node it's running on.
 To do simply uncomment the `volume` blocks in `librenms.yaml`

@@ -1,3 +1,2 @@
 REPO monk-librenms
 LOAD manifest.yaml
-RESOURCES files/traefik.yaml
