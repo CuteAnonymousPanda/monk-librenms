@@ -14,15 +14,40 @@ common:
     name: LibreNMS
     icon: https://www.librenms.org/images/LibreNMS-Logo.svg
     publisher: monk.io
-    description: Fully featured network monitoring system that provides a wealth of features and device support.
+    description: |
+      LibreNMS is a free and open-source network monitoring and management system that provides comprehensive monitoring and alerting for networks of all sizes.
+
+      It is designed to be easy to use and highly customizable, with a user-friendly web interface that allows users to monitor network health and performance in real-time.
+
+      LibreNMS supports a wide range of network devices, protocols, and vendors, including SNMP-based devices such as routers, switches, firewalls, servers, and storage devices.
+
+      It also provides advanced features such as automated network discovery, customizable dashboards, event logging, and alerting. With its modular architecture and robust API, LibreNMS can be extended to support additional network devices, protocols, and services.
+
+      It is ideal for network administrators and IT professionals who need a reliable, flexible, and scalable solution for monitoring and managing their networks.
+
+      ---
+
+      Notes:
+
+      Variables used:
+      | Variable           | Description                                                                    | Default                           |
+      | ------------------ | ------------------------------------------------------------------------------ | --------------------------------- |
+      | db-name            | Database name that will be used to store LibreNMS data                         | librenms                          |
+      | db-user            | Database username                                                              | librenms                          |
+      | db-pass            | Database password                                                              | HappyIsHappyDog!                  |
+      | timezone           | Timezone set for LibreNMS                                                      | Europe/London                     |
+      | smtp_host          | SMTP host that will be used for sending emails                                 | smtp.gmail.com                    |
+      | smtp_port          | SMTP port that will be used for sending emails                                 | 587                               |
+      | smtp_tls           | Should TLS be enabled for SMTP                                                 | on                                |
+      | smtp_starttls      | Should Start TLS be enabled for SMTP                                           | on                                |
+      | smtp_tls_checkcert | Should SMTP validate certificates                                              | on                                |
+      | smtp_auth          | Should we use SMTP auth                                                        | on                                |
+      | smtp_user          | SMTP username                                                                  | fooGoes                           |
+      | smtp_password      | SMTP password                                                                  | ToBar                             |
+      | smtp_from          | This will set From: for emails ls                                              | foo@gmail.commailto:foo@gmail.com |
     source: https://github.com/librenms/librenms
+    tags: LibreNMS Monitoring, Network Monitoring, Server Monitoring, Infrastructure Monitoring, Network Management, SNMP Monitoring, Network Discovery, Alerting, Performance Monitoring, Availability Monitoring, Bandwidth Monitoring, Syslog Monitoring, Event Logging, Network Visualization, Custom Dashboards, Network Troubleshooting, Network Security, Open Source Software, Network Automation, Integration
   variables:
-    http-port:
-      type: string
-      value: 80
-    https-port:
-      type: string
-      value: 443
     db-name:
       type: string
       value: librenms
