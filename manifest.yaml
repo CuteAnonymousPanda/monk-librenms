@@ -93,6 +93,8 @@ db:
   inherits: librenms/common
   metadata:
     private: true
+    icon: https://www.iconspng.com/uploads/database/database.png
+    name: redis-mysql-db
   services:
     mariadb:
       container: mariadb
