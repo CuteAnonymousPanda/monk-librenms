@@ -46,7 +46,7 @@ common:
       | smtp_password      | SMTP password                                                                  | ToBar                             |
       | smtp_from          | This will set From: for emails ls                                              | foo@gmail.commailto:foo@gmail.com |
     source: https://github.com/librenms/librenms
-    tags: LibreNMS Monitoring, Network Monitoring, Server Monitoring, Infrastructure Monitoring, Network Management, SNMP Monitoring, Network Discovery, Alerting, Performance Monitoring, Availability Monitoring, Bandwidth Monitoring, Syslog Monitoring, Event Logging, Network Visualization, Custom Dashboards, Network Troubleshooting, Network Security, Open Source Software, Network Automation, Integration
+    tags: infrastructure monitoring, performance monitoring, custom dashboards, network automation, syslog monitoring, network management, bandwidth monitoring, librenms monitoring, network monitoring, snmp monitoring, availability monitoring, network visualization, integration, network troubleshooting, network discovery, alerting, server monitoring, event logging, network security
   variables:
     db-name:
       type: string
